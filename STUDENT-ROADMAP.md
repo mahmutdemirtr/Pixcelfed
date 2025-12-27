@@ -1,319 +1,319 @@
-# STUDENT ROADMAP - PixelFed Docker Kurulum Projesi
+# STUDENT ROADMAP - PixelFed Docker Installation Project
 
-## Görev Tanımı
+## Project Description
 
-AWS bulut platformunda Docker kullanarak **PixelFed** (Instagram benzeri açık kaynak sosyal medya) kuracaksınız.
+You will install **PixelFed** (an Instagram-like open source social media platform) using Docker on AWS cloud platform.
 
-**Hedef:** `http://SUNUCU-IP:8080` adresinde çalışan PixelFed instance'ı
+**Goal:** PixelFed instance running at `http://SERVER-IP:8080`
 
-**Teslim:** Screenshot + rapor
-
----
-
-## Gereksinimler
-
-- AWS hesabı (öğrenci hesabı yeterli)
-- Temel Linux bilgisi
-- Docker konseptlerini biliyor olmak
-- SSH kullanabilmek
+**Deliverables:** Screenshots + report
 
 ---
 
-## Adımlar Özeti (10 Adım)
+## Requirements
 
-1. AWS EC2 instance oluştur
-2. SSH ile bağlan
-3. Sistem güncellemesi
-4. Docker kur
-5. Repository clone et
-6. .env dosyası düzenle
-7. Container'ları başlat
-8. **Kurulum script'i çalıştır** ← OTOMATİK!
-9. Admin kullanıcı oluştur
-10. Web testi
+- AWS account (student account is sufficient)
+- Basic Linux knowledge
+- Understanding of Docker concepts
+- Ability to use SSH
 
 ---
 
-## Adım 1: AWS EC2 Instance Oluştur
+## Steps Summary (10 Steps)
 
-### Ne Yapacaksın?
+1. Create AWS EC2 instance
+2. Connect via SSH
+3. System update
+4. Install Docker
+5. Clone repository
+6. Edit .env file
+7. Start containers
+8. **Run setup script** ← AUTOMATIC!
+9. Create admin user
+10. Web test
 
-Amazon Web Services'te bir Linux sunucusu kiralayacaksın.
+---
 
-### Neden?
+## Step 1: Create AWS EC2 Instance
 
-PixelFed web uygulaması çalıştırmak için 7/24 açık bir sunucuya ihtiyacın var. Kendi bilgisayarını kapatınca uygulama da kapanır, AWS sunucusu sürekli çalışır.
+### What Will You Do?
 
-### Nasıl?
+You will rent a Linux server on Amazon Web Services.
+
+### Why?
+
+To run the PixelFed web application, you need a server that's always on 24/7. When you turn off your own computer, the application stops, but an AWS server runs continuously.
+
+### How?
 
 **AWS Console → EC2 → Launch Instance**
 
-**Yapılacaklar:**
-- İsim: `pixelfed-server`
+**To Do:**
+- Name: `pixelfed-server`
 - AMI: Amazon Linux 2023
 - Instance type: t2.medium (2 vCPU, 4 GB RAM)
-- Key pair oluştur ve indir (.pem dosyası)
-- Security Group: Port 22 (SSH) ve 8080 (PixelFed) aç
+- Create and download key pair (.pem file)
+- Security Group: Open ports 22 (SSH) and 8080 (PixelFed)
 
-### Başarı Kriterleri
+### Success Criteria
 
-- [ ] Instance "Running" durumunda
-- [ ] Public IP var
-- [ ] .pem dosyası indirildi
-
----
-
-## Adım 2: SSH Bağlantısı
-
-### Ne Yapacaksın?
-
-Sunucuya terminal üzerinden bağlanacaksın.
-
-### Neden?
-
-Sunucuya komut göndermek için terminalden erişmen gerekiyor. GUI yok, her şey komut satırından.
-
-### Nasıl?
-
-- .pem dosyasına izin ver (chmod 400)
-- SSH komutuyla bağlan
-- Kullanıcı: ec2-user
-
-### Başarı Kriterleri
-
-- [ ] SSH bağlantısı başarılı
-- [ ] Prompt'ta "ec2-user@ip" görünüyor
+- [ ] Instance is "Running"
+- [ ] Public IP exists
+- [ ] .pem file downloaded
 
 ---
 
-## Adım 3: Sistem Güncellemesi
+## Step 2: SSH Connection
 
-### Ne Yapacaksın?
+### What Will You Do?
 
-Sunucudaki paketleri güncelleyeceksin.
+You will connect to the server via terminal.
 
-### Neden?
+### Why?
 
-Güvenlik yamaları ve en güncel paketler için. Eski paketler hata verebilir.
+You need terminal access to send commands to the server. There's no GUI, everything is command-line.
 
-### Nasıl?
+### How?
 
-- yum update ile sistemi güncelle
-- curl ve git gibi gerekli araçları kur
+- Set permissions on .pem file (chmod 400)
+- Connect with SSH command
+- User: ec2-user
 
-### Başarı Kriterleri
+### Success Criteria
 
-- [ ] Paket güncellemesi tamamlandı
-- [ ] curl ve git kurulu
-
----
-
-## Adım 4: Docker Kurulumu
-
-### Ne Yapacaksın?
-
-Docker ve Docker Compose'u kuracaksın.
-
-### Neden?
-
-PixelFed birden fazla servisten oluşuyor (web, database, redis, worker). Docker ile hepsini container olarak izole şekilde çalıştırıyorsun.
-
-### Docker Nedir?
-
-Uygulama ve bağımlılıklarını paketleyen konteyner teknolojisi. Her konteyner kendi dünyasında çalışır.
-
-### Docker Compose Nedir?
-
-Birden fazla container'ı tek komutla yöneten araç. Bizim projede 4+ container var.
-
-### Nasıl?
-
-- Docker'ı yum ile kur
-- Docker servisini başlat ve enable et
-- Kullanıcıyı docker grubuna ekle
-- Docker Compose binary'sini GitHub'dan indir
-
-### Başarı Kriterleri
-
-- [ ] docker --version çalışıyor
-- [ ] docker-compose --version çalışıyor
-- [ ] Docker servisi çalışıyor
+- [ ] SSH connection successful
+- [ ] Prompt shows "ec2-user@ip"
 
 ---
 
-## Adım 5: Repository Clone
+## Step 3: System Update
 
-### Ne Yapacaksın?
+### What Will You Do?
 
-Eğitmenin hazırladığı GitHub repository'sini klonlayacaksın.
+You will update packages on the server.
 
-### Neden?
+### Why?
 
-PixelFed kurulum dosyaları, docker-compose.yaml ve .env.docker şablonu bu repo'da hazır. **Ayrıca otomatik kurulum scripti de var!**
+For security patches and latest packages. Old packages can cause errors.
 
-### Repository Adresi
+### How?
+
+- Update system with yum update
+- Install required tools like curl and git
+
+### Success Criteria
+
+- [ ] Package update completed
+- [ ] curl and git installed
+
+---
+
+## Step 4: Docker Installation
+
+### What Will You Do?
+
+You will install Docker and Docker Compose.
+
+### Why?
+
+PixelFed consists of multiple services (web, database, redis, worker). With Docker, you run all of them as isolated containers.
+
+### What is Docker?
+
+Container technology that packages applications and their dependencies. Each container runs in its own world.
+
+### What is Docker Compose?
+
+A tool that manages multiple containers with a single command. Our project has 4+ containers.
+
+### How?
+
+- Install Docker with yum
+- Start and enable Docker service
+- Add user to docker group
+- Download Docker Compose binary from GitHub
+
+### Success Criteria
+
+- [ ] docker --version works
+- [ ] docker-compose --version works
+- [ ] Docker service running
+
+---
+
+## Step 5: Clone Repository
+
+### What Will You Do?
+
+You will clone the GitHub repository prepared by your instructor.
+
+### Why?
+
+PixelFed installation files, docker-compose.yaml, and .env.docker template are ready in this repo. **Also includes automatic setup script!**
+
+### Repository Address
 
 ```
 https://github.com/mahmutdemirtr/Pixcelfed.git
 ```
 
-### Nasıl?
+### How?
 
-- Home dizininde git clone çalıştır
-- pixelfed klasörüne gir
-- Dosyaları kontrol et
+- Run git clone in home directory
+- Enter pixelfed folder
+- Check files
 
-### Görmesi Gerekenler
+### Should See
 
-- compose.yaml (Docker servislerinin tarifi)
-- .env.docker (environment şablonu)
-- **setup-pixelfed.sh** ← OTOMATİK KURULUM SCRIPT!
-- KURULUM.md (detaylı kurulum rehberi)
+- compose.yaml (Docker services definition)
+- .env.docker (environment template)
+- **setup-pixelfed.sh** ← AUTOMATIC SETUP SCRIPT!
+- KURULUM.md (detailed installation guide)
 
-### Başarı Kriterleri
+### Success Criteria
 
-- [ ] Repo klonlandı
-- [ ] compose.yaml ve .env.docker mevcut
-- [ ] setup-pixelfed.sh mevcut
-
----
-
-## Adım 6: .env Dosyası Düzenleme
-
-### Ne Yapacaksın?
-
-Environment değişkenlerini düzenleyeceksin.
-
-### Neden?
-
-PixelFed'e kendi sunucu IP'ni, database şifreni vs. bildirmen gerekiyor. Her kurulum farklı ayarlar kullanır.
-
-### .env Nedir?
-
-Laravel framework'ünün konfigürasyon dosyası. Database, mail, cache ayarları burada.
-
-### Düzenlenecek 5 Alan
-
-**1. APP_NAME** (Satır 10)
-- Uygulamanın ismi
-- Örnek: "PixelFed"
-
-**2. APP_DOMAIN** (Satır 13)
-- **SADECE** sunucu IP (PORT OLMADAN!)
-- Örnek: "54.221.128.45"
-- **Nereden bulacağın:** AWS Console → EC2 → Public IPv4
-- **⚠️ KRİTİK:** `:8080` ekleme! Port sadece APP_URL'de olacak
-
-**3. APP_URL** (Satır 16)
-- Tam URL
-- Örnek: "http://54.221.128.45:8080"
-- **Dikkat:** `http://` (https değil!)
-
-**4. INSTANCE_CONTACT_EMAIL** (Satır 24)
-- İletişim emaili
-- Örnek: "admin@pixelfed.local"
-
-**5. DB_PASSWORD** (Satır 30)
-- Veritabanı şifresi
-- **Güçlü bir şifre belirle!**
-- Örnek: "PixelFed2025_Secure!"
-
-### Nasıl Düzenlenir?
-
-- .env.docker'ı .env'e kopyala
-- nano veya vim ile aç
-- Ctrl+W ile ara ve değiştir
-- Ctrl+O ile kaydet
-
-### Başarı Kriterleri
-
-- [ ] .env dosyası oluştu
-- [ ] 5 alan doğru dolduruldu
-- [ ] APP_DOMAIN'de PORT YOK!
-- [ ] Kendi IP adresi kullanıldı
+- [ ] Repo cloned
+- [ ] compose.yaml and .env.docker present
+- [ ] setup-pixelfed.sh present
 
 ---
 
-## Adım 7: Container'ları Başlat
+## Step 6: Edit .env File
 
-### Ne Yapacaksın?
+### What Will You Do?
 
-Docker Compose ile tüm servisleri başlatacaksın.
+You will edit environment variables.
 
-### Neden?
+### Why?
 
-PixelFed tek bir uygulama değil, birden fazla servisin orkestrasyonu:
+You need to tell PixelFed your server IP, database password, etc. Each installation uses different settings.
+
+### What is .env?
+
+Laravel framework's configuration file. Database, mail, cache settings are here.
+
+### 5 Fields to Edit
+
+**1. APP_NAME** (Line 10)
+- Application name
+- Example: "PixelFed"
+
+**2. APP_DOMAIN** (Line 13)
+- **ONLY** server IP (NO PORT!)
+- Example: "54.221.128.45"
+- **Where to find:** AWS Console → EC2 → Public IPv4
+- **⚠️ CRITICAL:** Don't add `:8080`! Port only in APP_URL
+
+**3. APP_URL** (Line 16)
+- Full URL
+- Example: "http://54.221.128.45:8080"
+- **Note:** `http://` (not https!)
+
+**4. INSTANCE_CONTACT_EMAIL** (Line 24)
+- Contact email
+- Example: "admin@pixelfed.local"
+
+**5. DB_PASSWORD** (Line 30)
+- Database password
+- **Set a strong password!**
+- Example: "PixelFed2025_Secure!"
+
+### How to Edit?
+
+- Copy .env.docker to .env
+- Open with nano or vim
+- Search with Ctrl+W and change
+- Save with Ctrl+O
+
+### Success Criteria
+
+- [ ] .env file created
+- [ ] 5 fields correctly filled
+- [ ] NO PORT in APP_DOMAIN!
+- [ ] Own IP address used
+
+---
+
+## Step 7: Start Containers
+
+### What Will You Do?
+
+You will start all services with Docker Compose.
+
+### Why?
+
+PixelFed isn't a single application, it's an orchestration of multiple services:
 - **web:** Apache + PHP
 - **worker:** Background jobs
 - **db:** MariaDB database
 - **redis:** Cache
 
-### Nasıl?
+### How?
 
-- docker-compose up -d komutuyla başlat
-- -d: detached mode (arka planda çalışsın)
-- 2-3 dakika bekle (ilk başlatma uzun)
+- Start with docker-compose up -d command
+- -d: detached mode (run in background)
+- Wait 2-3 minutes (first startup is long)
 
-### Durum Kontrolü
+### Status Check
 
-docker-compose ps ile kontrol et.
+Check with docker-compose ps.
 
-**Görmesi gerekenler:**
+**Should see:**
 - pixelfed-web: Up
 - pixelfed-worker: Up
 - pixelfed-db: Up
 - pixelfed-redis: Up
 
-### Başarı Kriterleri
+### Success Criteria
 
-- [ ] Tüm container'lar "Up" durumunda
-- [ ] Hata logu yok
+- [ ] All containers "Up"
+- [ ] No error logs
 
 ---
 
-## Adım 8: Otomatik Kurulum Script ⚡
+## Step 8: Automated Setup Script ⚡
 
-### Ne Yapacaksın?
+### What Will You Do?
 
-Hazır kurulum script'ini çalıştıracaksın.
+You will run the ready-made setup script.
 
-### Neden?
+### Why?
 
-Migration, cache, key generation gibi 7 teknik adım var. Bunları manuel yapmak hem zor hem hata yapmaya açık. Script hepsini otomatik yapıyor.
+There are 7 technical steps like migration, cache, key generation. Doing them manually is both difficult and error-prone. The script does everything automatically.
 
-### Script Ne Yapar? (Arka Planda)
+### What Does the Script Do? (Behind the Scenes)
 
-Script otomatik olarak şunları yapar:
+The script automatically does:
 
-1. **Migration:** Veritabanı tablolarını oluşturur (240+ tablo)
-2. **Key Generate:** Laravel application key'i üretir
-3. **Storage Link:** Fotoğraflar için symlink oluşturur
-4. **Cache:** Config, route ve view cache'lerini oluşturur
-5. **Instance Actor:** ActivityPub için instance actor'u oluşturur
-6. **Package Discovery:** Laravel paketlerini discover eder
-7. **Horizon:** Queue monitoring aracını kurar
-8. **Final Rebuild:** Final cache rebuild ve container restart
+1. **Migration:** Creates database tables (240+ tables)
+2. **Key Generate:** Generates Laravel application key
+3. **Storage Link:** Creates symlink for photos
+4. **Cache:** Creates config, route, and view caches
+5. **Instance Actor:** Creates instance actor for ActivityPub
+6. **Package Discovery:** Discovers Laravel packages
+7. **Horizon:** Installs queue monitoring tool
+8. **Final Rebuild:** Final cache rebuild and container restart
 
-### Migration Nedir?
+### What is Migration?
 
-Laravel'in veritabanı şemasını versiyonlama sistemi. Migration dosyaları `CREATE TABLE` komutlarını içerir. PixelFed 240+ tablo kullanıyor (users, posts, likes, followers vs.).
+Laravel's database schema versioning system. Migration files contain `CREATE TABLE` commands. PixelFed uses 240+ tables (users, posts, likes, followers, etc.).
 
-### ActivityPub Nedir?
+### What is ActivityPub?
 
-Mastodon, PixelFed gibi platformların birbirleriyle konuşma protokolü. E-mail gibi, farklı servislerde olsan da mesajlaşabiliyorsun.
+The protocol that platforms like Mastodon and PixelFed use to communicate with each other. Like email, you can message even if you're on different services.
 
-### Horizon Nedir?
+### What is Horizon?
 
-Redis queue işlerini monitör eden dashboard. Background job'ları izleyebilirsin.
+A dashboard that monitors Redis queue jobs. You can track background jobs.
 
-### Nasıl Çalıştırılır?
+### How to Run?
 
-**Yöntem 1: Script ile (Kolay)**
+**Method 1: With Script (Easy)**
 ```bash
 ./setup-pixelfed.sh
 ```
 
-**Yöntem 2: Manuel (Script hata verirse)**
+**Method 2: Manual (If script fails)**
 ```bash
 sudo docker-compose exec web php artisan migrate --force
 sudo docker-compose exec web php artisan key:generate
@@ -329,248 +329,248 @@ sudo docker-compose restart web
 sleep 3
 ```
 
-### Beklenen Çıktı
+### Expected Output
 
 ```
 =========================================
-PixelFed Kurulum Scripti Başlatılıyor...
+PixelFed Setup Script Starting...
 =========================================
 
-[⏳] Container durumu kontrol ediliyor...
-[✓] Container'lar çalışıyor
+[⏳] Checking container status...
+[✓] Containers running
 
-[⏳] Adım 1/8: Veritabanı migration'ları çalıştırılıyor...
-           (Bu adım 1-2 dakika sürebilir, lütfen bekleyin...)
-[✓] Migration tamamlandı! (240+ tablo oluşturuldu)
+[⏳] Step 1/8: Running database migrations...
+           (This step may take 1-2 minutes, please wait...)
+[✓] Migration completed! (240+ tables created)
 
-[⏳] Adım 2/8: Laravel application key oluşturuluyor...
-[✓] Application key oluşturuldu
+[⏳] Step 2/8: Generating Laravel application key...
+[✓] Application key generated
 
-[⏳] Adım 3/8: Storage symlink oluşturuluyor...
-[✓] Storage link oluşturuldu
+[⏳] Step 3/8: Creating storage symlink...
+[✓] Storage link created
 
-[⏳] Adım 4/8: Cache'ler oluşturuluyor...
+[⏳] Step 4/8: Creating caches...
            → Config cache...
            → Route cache...
            → View cache...
-[✓] Tüm cache'ler oluşturuldu (config, route, view)
+[✓] All caches created (config, route, view)
 
-[⏳] Adım 5/8: Instance actor oluşturuluyor...
-[✓] Instance actor oluşturuldu
+[⏳] Step 5/8: Creating instance actor...
+[✓] Instance actor created
 
-[⏳] Adım 6/8: Laravel paketleri discover ediliyor...
-[✓] Paketler discover edildi
+[⏳] Step 6/8: Discovering Laravel packages...
+[✓] Packages discovered
 
-[⏳] Adım 7/8: Horizon kurulumu yapılıyor...
-[✓] Horizon kuruldu
+[⏳] Step 7/8: Installing Horizon...
+[✓] Horizon installed
 
-[⏳] Adım 8/8: Final cache rebuild ve container restart...
-           → Route cache yeniden oluşturuluyor...
-           → Web container restart ediliyor...
-           → Container'ın hazır olması bekleniyor...
-[✓] Cache rebuild ve restart tamamlandı
+[⏳] Step 8/8: Final cache rebuild and container restart...
+           → Rebuilding route cache...
+           → Restarting web container...
+           → Waiting for container to be ready...
+[✓] Cache rebuild and restart completed
 
 =========================================
-✓ KURULUM TAMAMLANDI!
+✓ SETUP COMPLETED!
 =========================================
 
-Sıradaki adımlar:
-1. Admin kullanıcı oluştur:
+Next steps:
+1. Create admin user:
    sudo docker-compose exec web php artisan user:create
 
-2. Tarayıcıda aç:
+2. Open in browser:
    http://54.221.128.45:8080
 
-İyi çalışmalar! 🚀
+Good luck! 🚀
 ```
 
-### Süre
+### Duration
 
-~2-3 dakika (migration en uzun adım)
+~2-3 minutes (migration is the longest step)
 
-### Başarı Kriterleri
+### Success Criteria
 
-- [ ] Script hatasız çalıştı
-- [ ] "✓ KURULUM TAMAMLANDI!" mesajı geldi
-- [ ] 8 adımın hepsi "✓" aldı
-- [ ] Hata mesajı yok
+- [ ] Script ran without errors
+- [ ] "✓ SETUP COMPLETED!" message appeared
+- [ ] All 8 steps got "✓"
+- [ ] No error messages
 
 ---
 
-## Adım 9: Admin Kullanıcı Oluştur
+## Step 9: Create Admin User
 
-### Ne Yapacaksın?
+### What Will You Do?
 
-İlk kullanıcıyı (admin) oluşturacaksın.
+You will create the first user (admin).
 
-### Neden?
+### Why?
 
-PixelFed'e login olabilmek için kullanıcı lazım. İlk kullanıcı admin olacak.
+You need a user to log into PixelFed. The first user will be admin.
 
-### Nasıl?
+### How?
 
-Tek komut:
+Single command:
 ```bash
 sudo docker-compose exec web php artisan user:create
 ```
 
-### Girmen Gerekenler
+### What to Enter
 
-Script sana sırayla soracak:
+The script will ask you in sequence:
 ```
 Username: admin
 Email: admin@pixelfed.local
 Name: Admin User
-Password: (güçlü şifre - görünmez)
-Confirm Password: (aynı şifre)
+Password: (strong password - invisible)
+Confirm Password: (same password)
 Make this user an admin? (yes/no): yes
 Confirm user creation? (yes/no): yes
 ```
 
-### Başarı Kriterleri
+### Success Criteria
 
-- [ ] Kullanıcı oluşturuldu
-- [ ] "Created new user!" mesajı geldi
-- [ ] Admin yetkisi var
-- [ ] Şifre kaydedildi (unutma!)
-
----
-
-## Adım 10: Web Test
-
-### Ne Yapacaksın?
-
-Tarayıcıdan PixelFed'e erişeceksin.
-
-### Nasıl?
-
-**Tarayıcıda aç:**
-```
-http://<SENIN_IP>:8080
-```
-
-### Ana Sayfa Testi
-
-**Görmesi gerekenler:**
-- ✅ PixelFed logosu
-- ✅ "Login" butonu
-- ✅ "Discover", "About" linkleri
-- ❌ 404 hatası OLMAMALI!
-
-### Login Testi
-
-- Login butonuna tıkla
-- Username ve password gir
-- Login ol
-
-**Login sonrası:**
-- ✅ Timeline yüklenmeli
-- ✅ Sol menüde "Home", "Discover", "Groups" olmalı
-- ✅ Profil fotoğrafı yükleyebilmelisin
-
-### Başarı Kriterleri
-
-- [ ] Ana sayfa açılıyor (404 yok!)
-- [ ] Login başarılı
-- [ ] Timeline görüntüleniyor
-- [ ] Fotoğraf yükleyebiliyorsun
+- [ ] User created
+- [ ] "Created new user!" message appeared
+- [ ] Admin privileges granted
+- [ ] Password saved (don't forget!)
 
 ---
 
+## Step 10: Web Test
 
-## Teslim Edilecekler
+### What Will You Do?
 
-### 1. Screenshot'lar
+You will access PixelFed from your browser.
 
-- [ ] EC2 instance Running durumunda
-- [ ] docker-compose ps çıktısı (tüm container'lar Up)
-- [ ] Script başarıyla çalıştı ("✓ KURULUM TAMAMLANDI!")
-- [ ] Ana sayfa tarayıcıda açık (URL görünür)
-- [ ] Login sonrası timeline
+### How?
 
-### 2. Rapor (PDF)
+**Open in browser:**
+```
+http://<YOUR_IP>:8080
+```
 
-**İçerik:**
-- Kullandığın AWS region
+### Homepage Test
+
+**Should see:**
+- ✅ PixelFed logo
+- ✅ "Login" button
+- ✅ "Discover", "About" links
+- ❌ NO 404 error!
+
+### Login Test
+
+- Click Login button
+- Enter username and password
+- Log in
+
+**After login:**
+- ✅ Timeline should load
+- ✅ Left menu should show "Home", "Discover", "Groups"
+- ✅ Should be able to upload profile photo
+
+### Success Criteria
+
+- [ ] Homepage opens (no 404!)
+- [ ] Login successful
+- [ ] Timeline displaying
+- [ ] Can upload photos
+
+---
+
+
+## Deliverables
+
+### 1. Screenshots
+
+- [ ] EC2 instance in Running state
+- [ ] docker-compose ps output (all containers Up)
+- [ ] Script ran successfully ("✓ SETUP COMPLETED!")
+- [ ] Homepage open in browser (URL visible)
+- [ ] Timeline after login
+
+### 2. Report (PDF)
+
+**Content:**
+- AWS region used
 - EC2 Public IP
-- Karşılaştığın hatalar ve çözümleri
-- **Script'in ne yaptığını açıklama** (8 adım)
-- Migration'ın ne olduğunu açıklama
-- Docker Compose'un neden gerekli olduğunu açıklama
+- Errors encountered and solutions
+- **Explanation of what the script does** (8 steps)
+- Explanation of what migration is
+- Explanation of why Docker Compose is needed
 
 ---
 
-## Puanlama
+## Grading
 
-### ⭐ 60 Puan - Temel Kurulum
-- EC2 oluşturuldu
-- Docker kuruldu
-- Repository klonlandı
-- .env düzenlendi
-- Container'lar çalışıyor
+### ⭐ 60 Points - Basic Setup
+- EC2 created
+- Docker installed
+- Repository cloned
+- .env edited
+- Containers running
 
-### ⭐ 80 Puan - Script Başarılı
-- **setup-pixelfed.sh başarıyla çalıştı**
-- Migration tamamlandı
-- Admin kullanıcı oluşturuldu
+### ⭐ 80 Points - Script Success
+- **setup-pixelfed.sh ran successfully**
+- Migration completed
+- Admin user created
 
-### ⭐ 100 Puan - Çalışan Uygulama
-- Web arayüzüne erişiliyor
-- Login başarılı
-- Timeline yükleniyor
-- **404 hatası yok!**
+### ⭐ 100 Points - Working Application
+- Web interface accessible
+- Login successful
+- Timeline loading
+- **No 404 error!**
 
 ---
 
-## Önemli Notlar
+## Important Notes
 
-### ⚠️ En Sık Yapılan Hata
+### ⚠️ Most Common Mistake
 
-**APP_DOMAIN'e port ekleme!**
+**Adding port to APP_DOMAIN!**
 
-❌ Yanlış: `APP_DOMAIN="54.221.128.45:8080"`
-✅ Doğru: `APP_DOMAIN="54.221.128.45"`
+❌ Wrong: `APP_DOMAIN="54.221.128.45:8080"`
+✅ Correct: `APP_DOMAIN="54.221.128.45"`
 
-Port **sadece** APP_URL'de olmalı!
+Port should **only** be in APP_URL!
 
-### 💡 İpuçları
+### 💡 Tips
 
-1. Her adımdan sonra kontrol et, ilerle
-2. Script hata verirse logu oku
-3. .env dosyasını backup'la
-4. Admin şifresini unutma!
-5. Script 2-3 dakika sürebilir, sabırlı ol
+1. Check after each step, then proceed
+2. Read the log if script fails
+3. Backup .env file
+4. Don't forget admin password!
+5. Script may take 2-3 minutes, be patient
 
-### 📚 Öğreneceklerin
+### 📚 What You'll Learn
 
-- AWS EC2 yönetimi
+- AWS EC2 management
 - Docker & Docker Compose
-- **Automation (script yazma ve kullanma)**
+- **Automation (writing and using scripts)**
 - Laravel framework (migration, cache, artisan)
-- Database migration konsepti
-- Linux komut satırı
-- Networking (port, security group)
+- Database migration concept
+- Linux command line
+- Networking (ports, security groups)
 - Troubleshooting skills
 
-### 🎯 Script'in Avantajları
+### 🎯 Script Advantages
 
-- ✅ Manuel hata riski yok
-- ✅ Tüm adımlar otomatik
-- ✅ Tutarlı sonuç
-- ✅ Zaman tasarrufu
-- ✅ Production-ready yaklaşım
+- ✅ No manual error risk
+- ✅ All steps automatic
+- ✅ Consistent result
+- ✅ Time savings
+- ✅ Production-ready approach
 
-**Gerçek dünyada:** Deployment scriptleri böyle çalışır. DevOps mühendisleri manuel kurulum yapmaz, her şeyi otomatikleştirir!
+**In the real world:** Deployment scripts work like this. DevOps engineers don't do manual installation, they automate everything!
 
 ---
 
-## Başarılar! 🚀
+## Good Luck! 🚀
 
-Bu proje sonunda:
-- ✅ Production-ready bir web uygulamasını deploy edebileceksin
-- ✅ Docker orchestration yapabileceksin
-- ✅ Automation scriptlerini kullanabileceksin
-- ✅ AWS EC2'yi yönetebileceksin
-- ✅ DevOps operasyonlarını deneyimlemiş olacaksın
+By the end of this project:
+- ✅ You'll be able to deploy a production-ready web application
+- ✅ You'll be able to do Docker orchestration
+- ✅ You'll be able to use automation scripts
+- ✅ You'll be able to manage AWS EC2
+- ✅ You'll have experienced DevOps operations
 
-**10 adımda PixelFed kurulumu - Script sayesinde kolay!**
+**PixelFed installation in 10 steps - Easy with the script!**

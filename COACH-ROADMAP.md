@@ -1,6 +1,6 @@
-# PixelFed Kurulum - Eğitmen Çözüm Rehberi
+# PixelFed Installation - Instructor Solution Guide
 
-## Adım 1: AWS EC2 Oluşturma
+## Step 1: Create AWS EC2
 
 ### AWS Console
 
@@ -9,7 +9,7 @@ URL: https://console.aws.amazon.com/
 Services → EC2 → Launch Instance
 ```
 
-### Instance Ayarları
+### Instance Settings
 
 **Name:**
 ```
@@ -39,13 +39,13 @@ pixelfed-server
 | Custom TCP | TCP | 8080 | 0.0.0.0/0 | PixelFed |
 
 
-**Launch ve Public IP not al**
+**Launch and note Public IP**
 
 ---
 
-## Adım 2: SSH Bağlantısı
+## Step 2: SSH Connection
 
-### SSH ile Bağlan
+### Connect via SSH
 
 ```bash
 chmod 400 pixelfed-key.pem
@@ -54,15 +54,15 @@ ssh -i pixelfed-key.pem ec2-user@<PUBLIC_IP>
 
 ---
 
-## Adım 3: Sistem Güncellemesi
+## Step 3: System Update
 
-### Paket Listesini Güncelle
+### Update Package List
 
 ```bash
 sudo yum update -y
 ```
 
-### Gerekli Araçları Kur
+### Install Required Tools
 
 ```bash
 sudo yum install -y curl git
@@ -70,28 +70,28 @@ sudo yum install -y curl git
 
 ---
 
-## Adım 4: Docker Kurulumu
+## Step 4: Docker Installation
 
-### Docker Kur
+### Install Docker
 
 ```bash
 sudo yum install -y docker
 ```
 
-### Docker Servisini Başlat
+### Start Docker Service
 
 ```bash
 sudo systemctl start docker
 sudo systemctl enable docker
 ```
 
-### Kullanıcıyı Docker Grubuna Ekle
+### Add User to Docker Group
 
 ```bash
 sudo usermod -aG docker ec2-user
 ```
 
-### Docker Compose Kur
+### Install Docker Compose
 
 ```bash
 sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
@@ -107,9 +107,9 @@ docker-compose --version
 
 ---
 
-## Adım 5: PixelFed Repository Klonla
+## Step 5: Clone PixelFed Repository
 
-### Repository Klonla
+### Clone Repository
 
 ```bash
 cd ~
@@ -117,72 +117,72 @@ git clone https://github.com/mahmutdemirtr/Pixcelfed.git pixelfed
 cd pixelfed
 ```
 
-### Dosyaları Kontrol Et
+### Check Files
 
 ```bash
 ls -la
 ```
 
-**Görmesi gerekenler:**
+**Should see:**
 - compose.yaml
 - .env.docker
-- setup-pixelfed.sh ← **KURULUM SCRIPT**
+- setup-pixelfed.sh
 - KURULUM.md
 
 ---
 
-## Adım 6: .env Dosyası Oluşturma ve Düzenleme
+## Step 6: Create and Edit .env File
 
 ```bash
 cp .env.docker .env
-curl -s http://checkip.amazonaws.com  # Public IP'yi öğren
+curl -s http://checkip.amazonaws.com  # Get Public IP
 nano .env
 ```
 
-### Düzenlenecek 5 Alan (Ctrl+W ile ara):
+### Edit 5 Fields (Search with Ctrl+W):
 
-**1. APP_NAME (Satır 10):**
+**1. APP_NAME (Line 10):**
 ```bash
 APP_NAME="PixelFed"
 ```
 
-**2. APP_DOMAIN (Satır 13) - ⚠️ KRİTİK: PORT OLMADAN!**
+**2. APP_DOMAIN (Line 13) - ⚠️ CRITICAL: NO PORT!**
 ```bash
 APP_DOMAIN="<EC2_PUBLIC_IP>"
 ```
-Örnek: `APP_DOMAIN="54.221.128.45"` (PORT YOK!)
+Example: `APP_DOMAIN="54.221.128.45"` (NO PORT!)
 
-**3. APP_URL (Satır 16):**
+**3. APP_URL (Line 16):**
 ```bash
 APP_URL="http://<EC2_PUBLIC_IP>:8080"
 ```
-Örnek: `APP_URL="http://54.221.128.45:8080"`
+Example: `APP_URL="http://54.221.128.45:8080"`
 
-**4. INSTANCE_CONTACT_EMAIL (Satır 24):**
+**4. INSTANCE_CONTACT_EMAIL (Line 24):**
 ```bash
 INSTANCE_CONTACT_EMAIL="admin@pixelfed.local"
 ```
 
-**5. DB_PASSWORD (Satır 30):**
+**5. DB_PASSWORD (Line 30):**
 ```bash
 DB_PASSWORD="PixelFed2025_Secure!"
 ```
 
-### Kaydet ve Çık
+### Save and Exit
 
 ```
-Ctrl+O  → Kaydet
-Enter   → Onayla
-Ctrl+X  → Çık
+Ctrl+O  → Save
+Enter   → Confirm
+Ctrl+X  → Exit
 ```
 
-### Kontrol Et
+### Verify
 
 ```bash
 grep -E "^APP_NAME=|^APP_DOMAIN=|^APP_URL=|^INSTANCE_CONTACT_EMAIL=|^DB_PASSWORD=" .env
 ```
 
-**Beklenen çıktı:**
+**Expected output:**
 ```
 APP_NAME="PixelFed"
 APP_DOMAIN="54.221.128.45"
@@ -193,21 +193,21 @@ DB_PASSWORD="PixelFed2025_Secure!"
 
 ---
 
-## Adım 7: Konteynerleri Başlat
+## Step 7: Start Containers
 
 ```bash
 sudo docker-compose up -d
 ```
 
-**İlk çalıştırma 2-3 dakika sürer.**
+**First run takes 2-3 minutes.**
 
-### Durum Kontrolü
+### Check Status
 
 ```bash
 sudo docker-compose ps
 ```
 
-**Tüm servisler "Up" olmalı:**
+**All services should be "Up":**
 - pixelfed-web
 - pixelfed-worker
 - pixelfed-db
@@ -215,57 +215,21 @@ sudo docker-compose ps
 
 ---
 
-## Adım 8: Otomatik Kurulum Script
+## Step 8: Automated Setup Script
 
-### Yöntem 1: Script ile (ÖNERİLEN)
+### Method 1: With Script (RECOMMENDED)
 
 ```bash
 ./setup-pixelfed.sh
 ```
 
-**Süre:** ~2-3 dakika
-
-### Yöntem 2: Manuel Komutlar
-
-Script sorun verirse bu komutları sırayla çalıştır:
-
-```bash
-# Migration
-sudo docker-compose exec web php artisan migrate --force
-
-# Key generate
-sudo docker-compose exec web php artisan key:generate
-
-# Storage link
-sudo docker-compose exec web php artisan storage:link
-
-# Cache
-sudo docker-compose exec web php artisan config:cache
-sudo docker-compose exec web php artisan route:cache
-sudo docker-compose exec web php artisan view:cache
-
-# Instance actor
-sudo docker-compose exec web php artisan instance:actor
-
-# Package discovery & Horizon
-sudo docker-compose exec web php artisan package:discover
-sudo docker-compose exec web php artisan horizon:install
-
-# Final cache rebuild
-sudo docker-compose exec web php artisan route:cache
-sudo docker-compose restart web
-sleep 3
-```
-
----
-
-## Adım 9: Admin Kullanıcı Oluştur
+## Step 9: Create Admin User
 
 ```bash
 sudo docker-compose exec web php artisan user:create
 ```
 
-**Sırayla girilecekler:**
+**Enter in sequence:**
 ```
 Username: admin
 Email: admin@pixelfed.local
@@ -276,28 +240,28 @@ Make this user an admin? (yes/no): yes
 Confirm user creation? (yes/no): yes
 ```
 
-**Başarılı çıktı:**
+**Success output:**
 ```
 Created new user!
 ```
 
 ---
 
-## Adım 10: Web Test
+## Step 10: Web Test
 
-### Tarayıcıda Aç
+### Open in Browser
 
 ```
 http://<EC2_PUBLIC_IP>:8080
 ```
 
-Örnek: `http://54.221.128.45:8080`
+Example: `http://54.221.128.45:8080`
 
-### Ana Sayfa Test
+### Homepage Test
 
-- ✅ Sayfa yüklenmeli (404 OLMAMALI!)
-- ✅ PixelFed logosu görünmeli
-- ✅ Sağ üstte "Login" butonu olmalı
+- Page should load (NO 404!)
+- PixelFed logo should be visible
+- "Login" button in top right
 
 ### Login Test
 
@@ -306,54 +270,8 @@ Username: admin
 Password: Admin2025!
 ```
 
-- ✅ Login başarılı olmalı
-- ✅ Timeline görüntülenmeli
-- ✅ Sol menüde "Discover", "Groups" vs. olmalı
+- Login should succeed
+- Timeline should display
+- Left menu should show "Discover", "Groups", etc.
 
 ---
-
-
-## Başarı Kriterleri
-
-### ⭐ 60 Puan (Temel Kurulum)
-- [ ] EC2 instance oluşturuldu
-- [ ] Docker kuruldu
-- [ ] Repository klonlandı
-- [ ] .env dosyası düzenlendi
-- [ ] Konteynerler çalışıyor
-
-### ⭐ 80 Puan (Script Çalıştı)
-- [ ] setup-pixelfed.sh başarıyla çalıştı
-- [ ] Migration tamamlandı
-- [ ] Admin kullanıcı oluşturuldu
-
-### ⭐ 100 Puan (Web Erişim)
-- [ ] Web arayüzüne erişilebiliyor
-- [ ] Login başarılı
-- [ ] Timeline yükleniyor
-- [ ] 404 hatası YOK!
-
----
-
-
-## Notlar
-
-**Öğrencinin yapması gerekenler (özet):**
-1. ✅ EC2 oluştur
-2. ✅ SSH bağlan
-3. ✅ Docker kur
-4. ✅ Repo klonla
-5. ✅ .env düzenle (5 alan) - **APP_DOMAIN'de PORT YOK!**
-6. ✅ Container başlat
-7. ✅ **Script çalıştır** (`./setup-pixelfed.sh`)
-8. ✅ Admin user oluştur
-9. ✅ Tarayıcıdan test et
-
-**Script sayesinde 7 adım otomatik!**
-
-**Eğitmen kontrolü:**
-```bash
-# Hızlı kontrol
-curl -I http://<STUDENT_IP>:8080/ | head -1
-# HTTP/1.1 200 OK olmalı, 404 OLMAMALI!
-```
