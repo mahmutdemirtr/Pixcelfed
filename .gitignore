@@ -1,11 +1,7 @@
+data/
+config/
+postgres14/
+redis/
+.env
+*.backup
 .DS_Store
-/.cache
-/.env
-/.env.dottie-backup
-/.idea
-/.venv
-/docker-compose-state
-/docs/customize/settings.md
-/node_modules
-/site
-/src
