@@ -126,6 +126,7 @@ ls -la
 **Görmesi gerekenler:**
 - compose.yaml
 - .env.docker
+- setup-pixelfed.sh ← **KURULUM SCRIPT**
 - KURULUM.md
 
 ---
@@ -214,86 +215,52 @@ sudo docker-compose ps
 
 ---
 
-## Adım 8: Veritabanı Migration
+## Adım 8: Otomatik Kurulum Script
+
+### Script'i Çalıştır
 
 ```bash
-sudo docker-compose exec web php artisan migrate --force
+./setup-pixelfed.sh
 ```
 
-**240+ tablo oluşturulacak. 1-2 dakika sürer.**
+**Bu script otomatik olarak yapar:**
+1. ✅ Veritabanı migration (240+ tablo)
+2. ✅ Laravel application key oluşturma
+3. ✅ Storage symlink oluşturma
+4. ✅ Cache'leri oluşturma (config, route, view)
+5. ✅ Instance actor oluşturma
+6. ✅ Package discovery
+7. ✅ Horizon kurulumu
+8. ✅ Final cache rebuild ve restart
 
-**Başarılı çıktı:**
+**Süre:** ~2-3 dakika
+
+### Beklenen Çıktı
+
 ```
-INFO  Running migrations.
-  2018_04_03_125338_create_stories_table .... DONE
-  ...
+=========================================
+PixelFed Kurulum Scripti Başlatılıyor...
+=========================================
+
+[⏳] Container durumu kontrol ediliyor...
+[✓] Container'lar çalışıyor
+
+[⏳] Adım 1/8: Veritabanı migration'ları çalıştırılıyor...
+[✓] Migration tamamlandı! (240+ tablo oluşturuldu)
+
+[⏳] Adım 2/8: Laravel application key oluşturuluyor...
+[✓] Application key oluşturuldu
+
+...
+
+=========================================
+✓ KURULUM TAMAMLANDI!
+=========================================
 ```
 
 ---
 
-## Adım 9: Uygulama Key'i Oluştur
-
-```bash
-sudo docker-compose exec web php artisan key:generate
-```
-
-**Çıktı:**
-```
-Application key set successfully.
-```
-
----
-
-## Adım 10: Storage Link Oluştur
-
-```bash
-sudo docker-compose exec web php artisan storage:link
-```
-
----
-
-## Adım 11: Cache Oluştur
-
-```bash
-sudo docker-compose exec web php artisan config:cache
-sudo docker-compose exec web php artisan route:cache
-sudo docker-compose exec web php artisan view:cache
-```
-
----
-
-## Adım 12: Instance Actor Oluştur
-
-```bash
-sudo docker-compose exec web php artisan instance:actor
-```
-
----
-
-## Adım 13: Package Discovery & Horizon
-
-```bash
-sudo docker-compose exec web php artisan package:discover
-sudo docker-compose exec web php artisan horizon:install
-```
-
----
-
-## Adım 14: Final Cache Rebuild
-
-```bash
-sudo docker-compose exec web php artisan route:cache
-sudo docker-compose restart web
-```
-
-**3 saniye bekle:**
-```bash
-sleep 3
-```
-
----
-
-## Adım 15: Admin Kullanıcı Oluştur
+## Adım 9: Admin Kullanıcı Oluştur
 
 ```bash
 sudo docker-compose exec web php artisan user:create
@@ -317,7 +284,7 @@ Created new user!
 
 ---
 
-## Adım 16: Web Test
+## Adım 10: Web Test
 
 ### Tarayıcıda Aç
 
@@ -348,6 +315,20 @@ Password: Admin2025!
 
 ## Sorun Giderme
 
+### Script Hata Veriyor
+
+**Container çalışmıyor:**
+```bash
+sudo docker-compose ps  # Tüm container'lar Up olmalı
+sudo docker-compose up -d  # Tekrar başlat
+```
+
+**Log kontrolü:**
+```bash
+sudo docker-compose logs web --tail=50
+sudo docker-compose logs db --tail=50
+```
+
 ### 404 Hatası (Ana Sayfa Yüklenmiyor)
 
 **Sebep:** APP_DOMAIN'de port var!
@@ -359,18 +340,9 @@ nano .env
 # APP_DOMAIN="54.221.128.45"        ← DOĞRU!
 ```
 
-Düzelt ve yeniden cache:
+Düzelt ve script'i tekrar çalıştır:
 ```bash
-sudo docker-compose exec web php artisan config:clear
-sudo docker-compose exec web php artisan config:cache
-sudo docker-compose restart web
-```
-
-### Container Başlamıyor
-
-```bash
-sudo docker-compose logs web --tail=50
-sudo docker-compose logs db --tail=50
+./setup-pixelfed.sh
 ```
 
 ### Port 8080 Açık mı?
@@ -388,10 +360,10 @@ AWS Console → Security Groups → Inbound Rules kontrol et.
 - [ ] .env dosyası düzenlendi
 - [ ] Konteynerler çalışıyor
 
-### ⭐ 80 Puan (Migration & Admin)
+### ⭐ 80 Puan (Script Çalıştı)
+- [ ] setup-pixelfed.sh başarıyla çalıştı
 - [ ] Migration tamamlandı
 - [ ] Admin kullanıcı oluşturuldu
-- [ ] Veritabanında kullanıcı görünüyor
 
 ### ⭐ 100 Puan (Web Erişim)
 - [ ] Web arayüzüne erişilebiliyor
@@ -401,19 +373,58 @@ AWS Console → Security Groups → Inbound Rules kontrol et.
 
 ---
 
+## Manuel Kurulum (Script Kullanmadan)
+
+Script sorun verirse manuel adımlar:
+
+```bash
+# Migration
+sudo docker-compose exec web php artisan migrate --force
+
+# Key generate
+sudo docker-compose exec web php artisan key:generate
+
+# Storage link
+sudo docker-compose exec web php artisan storage:link
+
+# Cache
+sudo docker-compose exec web php artisan config:cache
+sudo docker-compose exec web php artisan route:cache
+sudo docker-compose exec web php artisan view:cache
+
+# Instance actor
+sudo docker-compose exec web php artisan instance:actor
+
+# Package discovery & Horizon
+sudo docker-compose exec web php artisan package:discover
+sudo docker-compose exec web php artisan horizon:install
+
+# Final cache rebuild
+sudo docker-compose exec web php artisan route:cache
+sudo docker-compose restart web
+sleep 3
+```
+
+---
+
 ## Notlar
 
-**Öğrencinin yaşayabileceği hatalar:**
+**Öğrencinin yapması gerekenler (özet):**
+1. ✅ EC2 oluştur
+2. ✅ SSH bağlan
+3. ✅ Docker kur
+4. ✅ Repo klonla
+5. ✅ .env düzenle (5 alan) - **APP_DOMAIN'de PORT YOK!**
+6. ✅ Container başlat
+7. ✅ **Script çalıştır** (`./setup-pixelfed.sh`)
+8. ✅ Admin user oluştur
+9. ✅ Tarayıcıdan test et
 
-1. **APP_DOMAIN'e port ekleme** → En sık yapılan hata!
-2. Migration'ı unutma
-3. Cache komutlarını atlama
-4. instance:actor'u çalıştırmama
-5. Security Group'ta 8080 portunu açmama
+**Script sayesinde 7 adım otomatik!**
 
 **Eğitmen kontrolü:**
 ```bash
-# Hızlı kontrol scripti
+# Hızlı kontrol
 curl -I http://<STUDENT_IP>:8080/ | head -1
 # HTTP/1.1 200 OK olmalı, 404 OLMAMALI!
 ```

@@ -76,55 +76,49 @@ sudo docker-compose ps
 
 Tüm container'lar "Up" durumunda olmalı.
 
-## Adım 5: Veritabanı Migration'larını Çalıştırın
+## Adım 5: Otomatik Kurulum Script'i Çalıştırın
 
-**ÖNEMLİ:** Bu adım otomatik değil, manuel yapılmalıdır.
+**YENİ:** Artık migration ve diğer setup adımlarını otomatik yapan bir script var!
 
-Web container'a girin:
+Script'i çalıştırın:
 ```bash
-sudo docker-compose exec web bash
+./setup-pixelfed.sh
 ```
 
-Container içinde migration'ları çalıştırın:
-```bash
-php artisan migrate --force
+**Bu script otomatik olarak yapar:**
+1. ✅ Veritabanı migration (240+ tablo)
+2. ✅ Laravel application key oluşturma
+3. ✅ Storage symlink oluşturma
+4. ✅ Cache'leri oluşturma (config, route, view)
+5. ✅ Instance actor oluşturma
+6. ✅ Package discovery
+7. ✅ Horizon kurulumu
+8. ✅ Final cache rebuild ve restart
+
+**Beklenen çıktı:**
+```
+=========================================
+PixelFed Kurulum Scripti Başlatılıyor...
+=========================================
+
+[⏳] Container durumu kontrol ediliyor...
+[✓] Container'lar çalışıyor
+
+[⏳] Adım 1/8: Veritabanı migration'ları çalıştırılıyor...
+[✓] Migration tamamlandı! (240+ tablo oluşturuldu)
+
+...
+
+=========================================
+✓ KURULUM TAMAMLANDI!
+=========================================
 ```
 
-Migration'lar tamamlandığında şöyle bir çıktı göreceksiniz:
-```
-INFO  Running migrations.
+**Süre:** ~2-3 dakika
 
-  2018_04_03_125338_create_stories_table ............... DONE
-  2018_04_19_054343_add_remote_url_to_profiles ......... DONE
-  ...
-```
+---
 
-Container'dan çıkın:
-```bash
-exit
-```
-
-## Adım 6: Uygulama Key'ini Oluşturun
-
-```bash
-sudo docker-compose exec web php artisan key:generate
-```
-
-## Adım 7: Storage Link'ini Oluşturun
-
-```bash
-sudo docker-compose exec web php artisan storage:link
-```
-
-## Adım 8: Cache'i Temizleyin
-
-```bash
-sudo docker-compose exec web php artisan config:cache
-sudo docker-compose exec web php artisan route:cache
-sudo docker-compose exec web php artisan view:cache
-```
-
-## Adım 9: Admin Kullanıcı Oluşturun
+## Adım 6: Admin Kullanıcı Oluşturun
 
 Web container'a girin:
 ```bash
@@ -149,7 +143,7 @@ Container'dan çıkın:
 exit
 ```
 
-## Adım 10: Web Arayüzüne Erişin
+## Adım 7: Web Arayüzüne Erişin
 
 Tarayıcınızda şu adresi açın:
 ```
