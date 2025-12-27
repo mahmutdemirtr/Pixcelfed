@@ -194,26 +194,26 @@ Laravel framework'ünün konfigürasyon dosyası. Database, mail, cache ayarlar�
 
 ### Düzenlenecek 5 Alan
 
-**1. APP_NAME** (Satır 24)
+**1. APP_NAME** (Satır 10)
 - Uygulamanın ismi
 - Örnek: "PixelFed"
 
-**2. APP_DOMAIN** (Satır 32)
+**2. APP_DOMAIN** (Satır 13)
 - **SADECE** sunucu IP (PORT OLMADAN!)
 - Örnek: "54.221.128.45"
 - **Nereden bulacağın:** AWS Console → EC2 → Public IPv4
 - **⚠️ KRİTİK:** `:8080` ekleme! Port sadece APP_URL'de olacak
 
-**3. APP_URL** (Satır 41)
+**3. APP_URL** (Satır 16)
 - Tam URL
 - Örnek: "http://54.221.128.45:8080"
 - **Dikkat:** `http://` (https değil!)
 
-**4. INSTANCE_CONTACT_EMAIL** (Satır 248)
+**4. INSTANCE_CONTACT_EMAIL** (Satır 24)
 - İletişim emaili
 - Örnek: "admin@pixelfed.local"
 
-**5. DB_PASSWORD** (Satır 538)
+**5. DB_PASSWORD** (Satır 30)
 - Veritabanı şifresi
 - **Güçlü bir şifre belirle!**
 - Örnek: "PixelFed2025_Secure!"
@@ -308,9 +308,25 @@ Redis queue işlerini monitör eden dashboard. Background job'ları izleyebilirs
 
 ### Nasıl Çalıştırılır?
 
-Tek komut:
+**Yöntem 1: Script ile (Kolay)**
 ```bash
 ./setup-pixelfed.sh
+```
+
+**Yöntem 2: Manuel (Script hata verirse)**
+```bash
+sudo docker-compose exec web php artisan migrate --force
+sudo docker-compose exec web php artisan key:generate
+sudo docker-compose exec web php artisan storage:link
+sudo docker-compose exec web php artisan config:cache
+sudo docker-compose exec web php artisan route:cache
+sudo docker-compose exec web php artisan view:cache
+sudo docker-compose exec web php artisan instance:actor
+sudo docker-compose exec web php artisan package:discover
+sudo docker-compose exec web php artisan horizon:install
+sudo docker-compose exec web php artisan route:cache
+sudo docker-compose restart web
+sleep 3
 ```
 
 ### Beklenen Çıktı
@@ -461,52 +477,6 @@ http://<SENIN_IP>:8080
 
 ---
 
-## Sorun Giderme
-
-### Script Hata Veriyor
-
-**Container çalışmıyor:**
-```bash
-sudo docker-compose ps  # Kontrol et
-sudo docker-compose up -d  # Tekrar başlat
-./setup-pixelfed.sh  # Script'i tekrar çalıştır
-```
-
-**Logları kontrol et:**
-```bash
-sudo docker-compose logs web --tail=50
-sudo docker-compose logs db --tail=50
-```
-
-### 404 Hatası - Ana Sayfa Yüklenmiyor
-
-**Muhtemel sebep:** APP_DOMAIN'de port var!
-
-**Kontrol et:**
-- APP_DOMAIN="54.221.128.45" ← DOĞRU (port yok)
-- APP_DOMAIN="54.221.128.45:8080" ← YANLIŞ!
-
-**Çözüm:**
-- .env dosyasını düzelt
-- Script'i tekrar çalıştır: `./setup-pixelfed.sh`
-
-### Port 8080'e Erişilemiyor
-
-**Kontrol et:**
-- AWS Security Group'ta port 8080 açık mı?
-- Inbound Rules kontrol et
-- Source: 0.0.0.0/0 olmalı
-
-### Migration Hatası
-
-**Muhtemel sebep:** Database bağlantısı yok
-
-**Kontrol et:**
-- pixelfed-db container çalışıyor mu?
-- DB_HOST=db olmalı (.env'de)
-- DB_PASSWORD doğru mu?
-
----
 
 ## Teslim Edilecekler
 

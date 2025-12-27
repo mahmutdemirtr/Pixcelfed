@@ -141,29 +141,29 @@ nano .env
 
 ### Düzenlenecek 5 Alan (Ctrl+W ile ara):
 
-**1. APP_NAME (Satır 24):**
+**1. APP_NAME (Satır 10):**
 ```bash
 APP_NAME="PixelFed"
 ```
 
-**2. APP_DOMAIN (Satır 32) - ⚠️ KRİTİK: PORT OLMADAN!**
+**2. APP_DOMAIN (Satır 13) - ⚠️ KRİTİK: PORT OLMADAN!**
 ```bash
 APP_DOMAIN="<EC2_PUBLIC_IP>"
 ```
 Örnek: `APP_DOMAIN="54.221.128.45"` (PORT YOK!)
 
-**3. APP_URL (Satır 41):**
+**3. APP_URL (Satır 16):**
 ```bash
 APP_URL="http://<EC2_PUBLIC_IP>:8080"
 ```
 Örnek: `APP_URL="http://54.221.128.45:8080"`
 
-**4. INSTANCE_CONTACT_EMAIL (Satır 248):**
+**4. INSTANCE_CONTACT_EMAIL (Satır 24):**
 ```bash
 INSTANCE_CONTACT_EMAIL="admin@pixelfed.local"
 ```
 
-**5. DB_PASSWORD (Satır 538):**
+**5. DB_PASSWORD (Satır 30):**
 ```bash
 DB_PASSWORD="PixelFed2025_Secure!"
 ```
@@ -217,45 +217,44 @@ sudo docker-compose ps
 
 ## Adım 8: Otomatik Kurulum Script
 
-### Script'i Çalıştır
+### Yöntem 1: Script ile (ÖNERİLEN)
 
 ```bash
 ./setup-pixelfed.sh
 ```
 
-**Bu script otomatik olarak yapar:**
-1. ✅ Veritabanı migration (240+ tablo)
-2. ✅ Laravel application key oluşturma
-3. ✅ Storage symlink oluşturma
-4. ✅ Cache'leri oluşturma (config, route, view)
-5. ✅ Instance actor oluşturma
-6. ✅ Package discovery
-7. ✅ Horizon kurulumu
-8. ✅ Final cache rebuild ve restart
-
 **Süre:** ~2-3 dakika
 
-### Beklenen Çıktı
+### Yöntem 2: Manuel Komutlar
 
-```
-=========================================
-PixelFed Kurulum Scripti Başlatılıyor...
-=========================================
+Script sorun verirse bu komutları sırayla çalıştır:
 
-[⏳] Container durumu kontrol ediliyor...
-[✓] Container'lar çalışıyor
+```bash
+# Migration
+sudo docker-compose exec web php artisan migrate --force
 
-[⏳] Adım 1/8: Veritabanı migration'ları çalıştırılıyor...
-[✓] Migration tamamlandı! (240+ tablo oluşturuldu)
+# Key generate
+sudo docker-compose exec web php artisan key:generate
 
-[⏳] Adım 2/8: Laravel application key oluşturuluyor...
-[✓] Application key oluşturuldu
+# Storage link
+sudo docker-compose exec web php artisan storage:link
 
-...
+# Cache
+sudo docker-compose exec web php artisan config:cache
+sudo docker-compose exec web php artisan route:cache
+sudo docker-compose exec web php artisan view:cache
 
-=========================================
-✓ KURULUM TAMAMLANDI!
-=========================================
+# Instance actor
+sudo docker-compose exec web php artisan instance:actor
+
+# Package discovery & Horizon
+sudo docker-compose exec web php artisan package:discover
+sudo docker-compose exec web php artisan horizon:install
+
+# Final cache rebuild
+sudo docker-compose exec web php artisan route:cache
+sudo docker-compose restart web
+sleep 3
 ```
 
 ---
@@ -313,43 +312,6 @@ Password: Admin2025!
 
 ---
 
-## Sorun Giderme
-
-### Script Hata Veriyor
-
-**Container çalışmıyor:**
-```bash
-sudo docker-compose ps  # Tüm container'lar Up olmalı
-sudo docker-compose up -d  # Tekrar başlat
-```
-
-**Log kontrolü:**
-```bash
-sudo docker-compose logs web --tail=50
-sudo docker-compose logs db --tail=50
-```
-
-### 404 Hatası (Ana Sayfa Yüklenmiyor)
-
-**Sebep:** APP_DOMAIN'de port var!
-
-**Çözüm:**
-```bash
-nano .env
-# APP_DOMAIN="54.221.128.45:8080"  ← YANLIŞ!
-# APP_DOMAIN="54.221.128.45"        ← DOĞRU!
-```
-
-Düzelt ve script'i tekrar çalıştır:
-```bash
-./setup-pixelfed.sh
-```
-
-### Port 8080 Açık mı?
-
-AWS Console → Security Groups → Inbound Rules kontrol et.
-
----
 
 ## Başarı Kriterleri
 
@@ -373,39 +335,6 @@ AWS Console → Security Groups → Inbound Rules kontrol et.
 
 ---
 
-## Manuel Kurulum (Script Kullanmadan)
-
-Script sorun verirse manuel adımlar:
-
-```bash
-# Migration
-sudo docker-compose exec web php artisan migrate --force
-
-# Key generate
-sudo docker-compose exec web php artisan key:generate
-
-# Storage link
-sudo docker-compose exec web php artisan storage:link
-
-# Cache
-sudo docker-compose exec web php artisan config:cache
-sudo docker-compose exec web php artisan route:cache
-sudo docker-compose exec web php artisan view:cache
-
-# Instance actor
-sudo docker-compose exec web php artisan instance:actor
-
-# Package discovery & Horizon
-sudo docker-compose exec web php artisan package:discover
-sudo docker-compose exec web php artisan horizon:install
-
-# Final cache rebuild
-sudo docker-compose exec web php artisan route:cache
-sudo docker-compose restart web
-sleep 3
-```
-
----
 
 ## Notlar
 
